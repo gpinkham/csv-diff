@@ -40,7 +40,13 @@ class CSVDiff
 
                 id = {}
                 id[:row] = right_row_id + 1
-                id[:sibling_position] = right_idx + 1
+                begin
+                  id[:sibling_position] = right_idx + 1
+                rescue Exception => e
+                  puts "Error in algorithm.. #{e.message}"
+                  puts e.backtrace
+                  id[:sibling_position] = 0
+                end
                 key_fields.each do |field_name|
                     id[field_name] = right_value[field_name]
                 end
@@ -109,6 +115,12 @@ class CSVDiff
                 right_val = nil if right_val == ""
                 left_val = left_row[attr]
                 left_val = nil if left_val == ""
+                if right_val.is_a?(String)
+                  right_val = right_val.downcase if !right_val.nil?
+                end
+                if left_val.is_a?(String)
+                  left_val = left_val.downcase if !left_val.nil?
+                end
                 if left_val != right_val
                     diffs[attr] = [left_val, right_val]
                     #puts "#{attr}: #{left_val} -> #{right_val}"
