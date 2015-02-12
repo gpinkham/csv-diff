@@ -29,7 +29,7 @@ class CSVDiff
 
             diffs = Hash.new{ |h, k| h[k] = {} }
             right_keys.each_with_index do |key, right_row_id|
-                key_vals = key.split('~')
+                key_vals = key.split('~', -1)
                 parent = key_vals[0...parent_fields].join('~')
                 left_parent = left_index[parent]
                 right_parent = right_index[parent]
@@ -78,7 +78,7 @@ class CSVDiff
             if include_deletes
                 (left_keys - right_keys).each do |key|
                     # Delete
-                    key_vals = key.split('~')
+                    key_vals = key.split('~', -1)
                     parent = key_vals[0...parent_fields].join('~')
                     left_parent = left_index[parent]
                     left_value = left_values[key]
@@ -116,10 +116,18 @@ class CSVDiff
                 left_val = left_row[attr]
                 left_val = nil if left_val == ""
                 if right_val.is_a?(String)
-                  right_val = right_val.downcase if !right_val.nil?
+                  if (Float(right_val) rescue nil)
+                    right_val = Float(right_val)
+                  else
+                    right_val = right_val.downcase if !right_val.nil?
+                  end
                 end
                 if left_val.is_a?(String)
-                  left_val = left_val.downcase if !left_val.nil?
+                  if (Float(left_val) rescue nil)
+                    left_val = Float(left_val)
+                  else
+                    left_val = left_val.downcase if !left_val.nil?
+                  end
                 end
                 if left_val != right_val
                     diffs[attr] = [left_val, right_val]
